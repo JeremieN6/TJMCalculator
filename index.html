@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculateur de TJM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        #app {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            color: #555;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 24px;
+        }
+
+        h2 {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            display: inline-block;
+            background: #007BFF;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .results p, .subtotal {
+            font-size: 18px;
+            margin: 10px 0;
+            padding: 10px;
+            background: #e7f4e4;
+            border-left: 4px solid #4caf50;
+            border-radius: 4px;
+        }
+        .exemple {
+            font-size: 14px;
+            font-weight: normal;
+            color: #888;
+        }
+        .frais-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .left_no-working-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .left .emoji {
+            font-size: 24px;
+            margin-right: 10px;
+        }
+
+        .center {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .center .input-frais {
+            width: 100px;
+            padding: 5px;
+            font-size: 14px;
+            margin-right: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .center .euro {
+            font-size: 14px;
+        }
+
+        .right {
+            flex: 1;
+            text-align: right;
+        }
+
+        .exemple {
+            font-size: 12px;
+            font-weight: normal;
+            color: #888;
+            margin: 0;
+        }
+        /* Conteneur principal de chaque item */
+        .jour-item {
+            display: flex; /* Utilise Flexbox pour aligner les éléments horizontalement */
+            align-items: center; /* Centre verticalement les éléments */
+            justify-content: space-between; /* Espace entre les éléments */
+            padding: 10px 15px;
+            margin-bottom: 10px; /* Ajoute un espacement entre chaque item */
+            background-color: #f9f9f9; /* Couleur de fond légère */
+            border: 1px solid #ddd; /* Bordure légère */
+            border-radius: 8px; /* Coins arrondis */
+        }
+
+        /* Section de gauche (nom et exemple) */
+        .left {
+            display: flex;
+            flex: 1; /* Prend tout l'espace disponible à gauche */
+        }
+
+        .left strong {
+            font-size: 1rem; /* Taille du texte pour le nom */
+            color: #333; /* Couleur du texte */
+            display: block; /* Force un retour à la ligne après le nom */
+            /* margin-bottom: 5px; */
+        }
+
+        .left .exemple {
+            font-size: 0.85rem; /* Taille plus petite pour l'exemple */
+            font-style: italic; /* Texte en italique */
+            color: #666; /* Couleur plus claire */
+            margin: 0;
+        }
+
+        .center input {
+            width: 80px; /* Taille réduite pour l'input */
+            padding: 5px;
+            margin-right: 5px; /* Espacement entre l'input et "jour(s)" */
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-bottom: 0;
+            text-align: right; /* Aligne le texte à droite dans l'input */
+        }
+
+        .center .jour {
+            font-size: 0.85rem; /* Taille réduite pour l'unité */
+            color: #444; /* Couleur légèrement différente */
+        }
+
+        /* Section de droite (résultat ou résumé) */
+        .right {
+            flex: 1; /* Prend de l'espace pour équilibrer */
+            text-align: right; /* Aligne les éléments à droite */
+            font-size: 0.9rem; /* Taille du texte */
+            color: #555; /* Couleur neutre */
+        }
+
+        /* Général : Responsiveness */
+        @media (max-width: 768px) {
+            .jour-item {
+                flex-direction: column; /* Passe en colonne sur petits écrans */
+                align-items: flex-start; /* Aligne tout à gauche */
+            }
+
+            .center {
+                margin: 10px 0; /* Ajoute de l'espace entre les sections */
+            }
+
+            .right {
+                text-align: left; /* Passe à gauche sur mobile */
+            }
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h1>Calculateur de TJM</h1>
+
+        <div>
+            <label for="remuneration">Rémunération nette souhaitée (€/mois) :</label>
+            <input type="number" id="remuneration" v-model="remuneration" placeholder="Ex : 3000">
+        </div>
+
+        <h2>Frais de fonctionnement</h2>
+        <div v-for="(value, key) in frais" :key="key" class="frais">
+            <div class="frais-item">
+                <div class="left">
+                    <span class="emoji">{{ emojis[key] }}</span>
+                    <div>
+                        <strong>{{ formatFraisName(key) }}</strong>
+                        <p class="exemple">
+                            ({{ exemples[key].join(', ') }})
+                        </p>
+                    </div>
+                </div>
+    
+                <div class="center">
+                    <input 
+                        type="number" 
+                        v-model="frais[key]" 
+                        :id="key" 
+                        placeholder="0" 
+                        class="input-frais" 
+                    />
+                    <span class="euro">€ par mois</span>
+                </div>
+    
+                <div class="right">
+                    <p v-if="frais[key] > 0">
+                        {{ calculerMontantAnnuel(frais[key]).toFixed(2) }} € par an
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="subtotal">
+            <p><strong>Sous-total mensuel :</strong> {{ calculerFraisMensuels().toFixed(2) }} €</p>
+            <p><strong>Sous-total annuel :</strong> {{ calculerFraisAnnuels().toFixed(2) }} €</p>
+        </div>
+
+        <h2>Charges sociales (%)</h2>
+        <div>
+            <label for="chargesSociales">Pourcentage de charges sociales :</label>
+            <select id="chargesSociales" v-model="chargesSociales">
+                <option value="24">24%</option>
+                <option value="25">25%</option>
+                <option value="14">14%</option>
+            </select>
+        </div>
+        <div class="subtotal">
+            <p><strong>Sous-total annuel :</strong> {{ calculerChargesSociales().toFixed(2) }} €</p>
+        </div>
+
+        <h2>Jours non travaillés</h2>
+        <div v-for="(value, key) in joursNonTravailles" :key="key" class="jour">
+            <div class="jour-item">
+                <div class="left_no-working-day">
+                    <strong>{{ formatFraisName(key) }}</strong> <!-- Affiche le nom correctement formaté -->
+    
+                    <!-- Exemple sous chaque type de jour -->
+                    <p class="exemple">{{ exemplesJours[key] }}</p>
+                </div>
+    
+                <div class="center">
+                    <input 
+                        type="number" 
+                        v-model="joursNonTravailles[key]" 
+                        :id="key" 
+                        placeholder="0" 
+                        class="input-jour" 
+                    />
+                    <span class="jour">jour(s)</span>
+                </div>
+    
+                <div class="right">
+                    <p>{{ joursNonTravailles[key] }} jour(s)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Affichage des totaux -->
+        <div class="totaux">
+            <p><strong>Total des ouvrés sur l'année :</strong> {{ totalJoursOuvreAnnuel }}</p>
+            <p><strong>Total des jours non facturés :</strong> {{ totalJoursNonTravailles }}</p>
+            <p><strong>Total des jours facturés :</strong> {{ totalJoursFacturables }}</p>
+        </div>
+
+        <h2>Montant de votre imposition</h2>
+
+        <!-- Question 1 : Type d'activité -->
+        <div>
+            <label for="activite">Quelle est votre activité ?</label>
+            <select id="activite" v-model="imposition.activite">
+                <option value="industrielle">Industrielle</option>
+                <option value="services">Services</option>
+                <option value="achat_revente">Achat revente</option>
+            </select>
+        </div>
+
+        <!-- Question 2 : Versement libératoire -->
+        <div>
+            <label for="versementLiberatoire">Avez-vous opté pour le versement libératoire ?</label>
+            <select id="versementLiberatoire" v-model="imposition.versementLiberatoire">
+                <option value="oui">Oui</option>
+                <option value="non">Non</option>
+            </select>
+        </div>
+
+        <!-- Question 3 : Taux d'imposition -->
+        <div>
+            <label for="tauxImposition">Quel est votre taux d'imposition (%) ?</label>
+            <input type="number" id="tauxImposition" v-model="imposition.taux" min="0" placeholder="Ex: 15" />
+        </div>
+
+        <!-- Affichage du total de l'imposition -->
+        <div class="subtotal">
+            <p><strong>Sous-total de l'imposition :</strong> {{ calculerImposition().toFixed(2) }} €</p>
+        </div>
+
+        <h2>Bénéfice (%)</h2>
+        <select v-model="benefice">
+            <option v-for="i in [5, 10, 15, 20, 25]" :key="i" :value="i">{{ i }}%</option>
+        </select>
+
+        <button @click="calculerTJM">Calculer</button>
+
+        <h2>Résultats</h2>
+        <div class="results">
+            <p><strong>TJM HT :</strong> {{ resultats.tjm }} €</p>
+            <p><strong>CA Annuel HT :</strong> {{ resultats.caAnnuel }} €</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script type="text/javascript">
+        new Vue({
+            el: '#app',
+            data: {
+                remuneration: null,
+                totalJoursOuvreAnnuel: 251,
+                chargesSociales: 24,
+                benefice: 5,
+                frais: {
+                    loyer: 0,
+                    voyages: 0,
+                    logiciels: 0,
+                    comptable: 0,
+                    telephone: 0,
+                    carburant: 0,
+                    entretienMateriel: 0,
+                    fournitures: 0,
+                    repas: 0,
+                    servicesBancaires: 0,
+                    materielInformatique: 0,
+                    taxes: 0,
+                    autres: 0,
+                },
+                exemples: {
+                    loyer: ["Eau", "EDF"], // Exemple pour le loyer
+                    voyages: ["Déplacement SNCF", "Avion"], // Exemple pour les voyages
+                    logiciels: ["Adobe", "Office"], // Exemple pour les logiciels
+                    comptable: ["Expert comptable", "Cabinet comptable"], // Exemple pour comptable
+                    telephone: ["Abonnement mobile", "Téléphone professionnel"], // Exemple pour téléphone
+                    carburant: ["Carburant voiture", "Carburant moto"], // Exemple pour carburant
+                    entretienMateriel: ["Réparation matériel informatique", "Entretien matériel de bureau"], // Exemple pour entretien matériel
+                    fournitures: ["Papeterie", "Fournitures informatiques"], // Exemple pour fournitures
+                    repas: ["Repas professionnel", "Repas d'affaires"], // Exemple pour repas
+                    servicesBancaires: ["Frais de banque", "Frais de gestion"], // Exemple pour services bancaires
+                    materielInformatique: ["Ordinateur portable", "Périphériques"], // Exemple pour matériel informatique
+                    taxes: ["Taxes locales", "TVA"], // Exemple pour taxes
+                    autres: ["Dépenses diverses", "Abonnement services"] // Exemple pour autres
+                },
+                emojis: {
+                    loyer: "🏠",
+                    voyages: "✈️",
+                    logiciels: "💻",
+                    comptable: "📑",
+                    telephone: "📱",
+                    carburant: "⛽",
+                    entretienMateriel: "🔧",
+                    fournitures: "📝",
+                    repas: "🍽️",
+                    servicesBancaires: "🏦",
+                    materielInformatique: "🖥️",
+                    taxes: "💸",
+                    autres: "📦"
+                },
+                joursNonTravailles: {
+                    vacances: 0,
+                    demarchage: 0,
+                    comptaAdmin: 0,
+                    maladie: 0,
+                    chômage: 0,
+                },
+                exemplesJours: {
+                    vacances: "vacances et jours fériés",
+                    demarchage: "démarchage commercial",
+                    comptaAdmin: "comptabilité et administratif",
+                    maladie: "maladie",
+                    chomage: "jour de chômage technique",
+                },
+                resultats: {
+                    tjm: 0,
+                    caAnnuel: 0,
+                },
+                imposition: {
+                    activite: 'industrielle',
+                    versementLiberatoire: 'non',
+                    taux: 15,
+                },
+            },
+            computed: {
+                totalJoursNonTravailles() {
+                    return Object.values(this.joursNonTravailles).reduce((total, jours) => total + parseInt(jours || 0), 0);
+                },
+                totalJoursFacturables() {
+                    return 251 - this.totalJoursNonTravailles;
+                },
+            },
+            methods: {
+                calculerFraisMensuels() {
+                    return Object.values(this.frais).reduce((total, valeur) => total + parseFloat(valeur || 0), 0);
+                },
+                calculerFraisAnnuels() {
+                    return this.calculerFraisMensuels() * 12;
+                },
+                calculerJoursFacturables() {
+                    const totalJoursNonTravailles = Object.values(this.joursNonTravailles).reduce((total, jours) => total + parseInt(jours || 0), 0);
+                    return 251 - totalJoursNonTravailles;
+                },
+                calculerTJM() {
+                    const fraisAnnuels = this.calculerFraisAnnuels();
+                    const joursFacturables = this.calculerJoursFacturables();
+                    const chargesSociales = (this.remuneration * 12 * this.chargesSociales) / 100;
+                    const benefice = (fraisAnnuels + chargesSociales) * (this.benefice / 100);
+                    const totalAnnuel = fraisAnnuels + chargesSociales + benefice + this.remuneration * 12;
+                    this.resultats.caAnnuel = totalAnnuel.toFixed(2);
+                    this.resultats.tjm = (totalAnnuel / joursFacturables).toFixed(2);
+                },
+                calculerChargesSociales() {
+                    return (this.remuneration * 12 * this.chargesSociales) / 100;
+                },
+                calculerImposition() {
+                    let tauxImposition = this.imposition.taux;
+                    if (this.imposition.versementLiberatoire === "oui") {
+                        tauxImposition = tauxImposition / 2;
+                    }
+                    return (this.remuneration * 12 * tauxImposition) / 100;
+                },
+                calculerMontantAnnuel(fraisMensuel) {
+                    return fraisMensuel * 12; // Calcul du montant annuel
+                },
+                formatFraisName(key) {
+                    // Transforme la clé en ajoutant des espaces et met chaque mot en capital
+                    return key
+                        .replace(/([a-z])([A-Z])/g, '$1 $2')  // Insère un espace avant chaque majuscule
+                        .replace(/^([a-z])/, (match) => match.toUpperCase())  // Met la première lettre en majuscule
+                        .replace(/([a-z])([A-Z])/g, (match) => match.toUpperCase()); // Met les mots en majuscule
+                },
+            },
+            mounted() {
+                console.log("Vue.js a bien été monté");
+            }
+        });
+    </script>
+</body>
+</html>
