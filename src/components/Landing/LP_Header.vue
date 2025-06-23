@@ -9,7 +9,7 @@
                     <span class="self-center text-xl font-semibold text-gray-700 whitespace-nowrap dark:text-white">Tajimo 📊</span>
                 </RouterLink>
                 <div class="flex items-center lg:order-2">
-                    <RouterLink to="/#"
+                    <RouterLink mailto:contact@jeremiecode.fr to="/#"
                         class="inline-flex justify-center items-center py-3 px-5 text-white font-medium text-center rounded-lg bg-blue-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
                         Contact
                     </RouterLink>
