@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // ⚠️ Nécessaire pour activer le dark mode via la classe "dark"
+            theme: {
+                extend: {},
+            },
+            plugins: [],
+        }
+    </script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script> -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script>
+    <script>
+        // On page load or when changing themes, best to add inline in `head` to avoid FOUC
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <style>
+        section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        section>div {
+            flex: 1;
+        }
+
+        .auto-rows-auto {
+            grid-auto-rows: auto;
+            /* Remplace auto-rows-fr pour adapter la hauteur au contenu */
+        }
+
+        /* Style spécifique pour les sections avec peu de contenu */
+        .content-fit {
+            height: auto;
+            min-height: fit-content;
+        }
+
+        /* Ajouter ces styles pour l'animation de collapse/expand */
+        .expand-transition {
+            transition: max-height 0.3s ease-out;
+            overflow: hidden;
+        }
+
+        .collapsed {
+            max-height: 0;
+        }
+
+        .expanded {
+            max-height: 1000px;
+            /* Valeur suffisamment grande pour contenir tout le contenu */
+        }
+        .peer:checked ~ .peer-checked\:after\:translate-x-full::after {
+            transform: inherit !important;
+        }
+    </style>
+    <title>Document test if IA</title>
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900">
+    <div class="fixed right-4 bottom-4 z-9999">
+        <button id="theme-toggle" type="button"
+            class="text-neutral-500 dark:text-neutral-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-2.5 transition-colors duration-300">
+            <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path>
+            </svg>
+            <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
+                xmlns="http://www.w3.org/2000/svg">
+                <path
+                    d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                    fill-rule="evenodd" clip-rule="evenodd"></path>
+            </svg>
+        </button>
+    </div>
+    <div id="app">
+        <div class="w-full p-4">
+            <div class="grid grid-cols-1 gap-4 auto-rows-auto">
+                <section class="remuneration">
+                    <div
+                        class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6 content-fit">
+                        <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            <span class="text-gray-400">#1</span> Votre rémunération nette souhaitée?
+                        </h5>
+
+                        <div class="mb-2 text-center">
+                            <span class="text-3xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(salaryTarget) }} €</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">net par mois</span>
+                        </div>
+
+                        <input v-model.number="salaryTarget" type="range" min="1000" max="10000" step="100"
+                            class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700 mb-4">
+
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Soit un total de</span>
+                            <div class="text-right">
+                                <span class="text-xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(annualSalary) }} €</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-400 block">net par an</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="frais-fonctionnement h-full  md:col-span-2">
+                    <div
+                        class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6">
+                        <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                            <span class="text-gray-400">#2</span> Indiquez vos frais de fonctionnement
+                        </h5>
+
+                        <!-- En-tête avec dropdown -->
+                        <div class="flex items-center justify-between mb-4 p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="font-medium text-gray-900 dark:text-white">Charges de fonctionnement</div>
+                            <div class="flex items-center">
+                                <span class="text-xl font-bold text-indigo-800 dark:text-indigo-400 w-full mr-2">{{ formatNumber(totalMonthlyExpenses) }}</span>
+                                <span class="text-xs text-gray-600 dark:text-gray-400 mr-2">par mois</span>
+                                <button id="toggle-expenses"
+                                    class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Liste des dépenses -->
+                        <div id="expenses-list" class="expand-transition expanded">
+                            <!-- Loyer bureau -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">🏢</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Loyer bureau</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Eau, électricité,
+                                            etc.)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.rent" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.rent * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Voyages -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">✈️</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Voyages</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(avion...)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.travel" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.travel * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Logiciels -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">💻</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Logiciels</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">Adobe, Office,
+                                            etc.</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.software" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.software * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Comptabilité -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">📑</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Comptable</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Expert
+                                            comptable)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.accounting" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.accounting * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Téléphone -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">📱</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Téléphone</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Abonnement
+                                            mobile)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.phone" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.phone * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Carburant -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">⛽</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Carburant</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Déplacements pro
+                                            voiture)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.fuel" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.fuel * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Entretien Matériel -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">📱</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Entretien Matériel</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Réparation
+                                            matériel
+                                            informatique, Entretien matériel de bureau)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.maintenance" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.maintenance * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Fournitures -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">📝</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Fournitures</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Papeterie,
+                                            Fournitures
+                                            informatiques)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.supplies" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.supplies * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Repas -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">🍽️</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Repas</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Repas
+                                            professionnel,
+                                            Repas d'affaires)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.meals" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.meals * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Services Bancaires -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">🏦</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Services Bancaires</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Frais de banque,
+                                            Frais
+                                            de gestion)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.banking" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.banking * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Materiel Informatique -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">🖥️</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Materiel Informatique</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Ordinateur
+                                            portable,
+                                            Périphériques)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.computer" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.computer * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Taxes -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">💸</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Taxes</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Taxes locales,
+                                            TVA)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.taxes" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.taxes * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Autres -->
+                            <div
+                                class="flex items-center justify-between py-2 border-b border-gray-100 dark:border-gray-700">
+                                <div class="flex items-center">
+                                    <span class="mr-2">📦</span>
+                                    <div>
+                                        <span class="text-gray-900 dark:text-white text-sm">Autres</span>
+                                        <span class="text-xs text-gray-500 dark:text-gray-400 block">(Autres dépenses,
+                                            Abonnement services)</span>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input v-model.number="expenses.other" type="number" min="0"
+                                        class="w-16 text-right px-2 py-1 border border-gray-200 rounded bg-gray-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-xs text-gray-500 dark:text-gray-400 mx-2">€ par mois</span>
+                                    <span
+                                        class="text-sm font-medium text-indigo-800 dark:text-indigo-400 w-16 text-right">{{ formatNumber(expenses.other * 12) }} €</span><sub>/an</sub>
+                                </div>
+                            </div>
+
+                            <!-- Total -->
+                            <div
+                                class="flex justify-between items-center mt-4 pt-2 border-t border-gray-200 dark:border-gray-700">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Soit un total
+                                    de</span>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(totalAnnualExpenses) }} €</span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block">par an</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <section class="charges-sociales h-full">
+                        <div
+                            class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6">
+                            <div class="flex flex-row justify-between">
+                                <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                    <span class="text-gray-400">#3</span> Montant de vos charges sociales
+                                </h5>
+                                <label class="inline-flex items-center cursor-pointer">
+                                <input v-model="showAnnualSocialCharges" type="checkbox" class="sr-only peer">
+                                    <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+
+                                </label>
+                            </div>
+
+                            <div class="pb-4">
+                                <p class="text-gray-500 dark:text-gray-400">
+                                    C'est le chiffre d'affaires que vous devez générer pour vous verser vos <span class="font-bold">{{ formatNumber(salaryTarget) }} € nets par mois</span>, après avoir payé ses cotisations sociales.
+                                </p>
+                            </div>
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-4">
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                    <label for="social-charges-type" class="text-base font-medium text-gray-900 dark:text-white">Charges sociales</label>
+                                    <select v-model="socialChargesRate" id="social-charges-type"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        <option value="14">14% - Ventes de marchandises</option>
+                                        <option value="21.2">21,2% - Prestations de services, commerciales ou artisanales</option>
+                                        <option value="21.1">21,1% - Professions libérales non réglementées</option>
+                                        <option value="22">22% - Professions libérales réglementées</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Soit un total de</span>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold text-indigo-800 dark:text-indigo-400">
+                                        {{ showAnnualSocialCharges ? formatNumber(annualSocialCharges) : formatNumber(monthlySocialCharges) }} €
+                                    </span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block">
+                                        {{ showAnnualSocialCharges ? 'par an' : 'par mois' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="imposition h-full">
+                        <div
+                            class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6">
+                            <h5 class="mb-4 text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                                <span class="text-gray-400">#4</span> Montant de votre imposition
+                            </h5>
+
+                            <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg mb-4 space-y-4">
+                                <!-- Type d'activité -->
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                    <label for="activity-type" class="text-base font-medium text-gray-900 dark:text-white">
+                                        Quelle est votre activité?
+                                    </label>
+                                    <select v-model="activityType" id="activity-type"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-64 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        <option value="commercial">Industrielle / commerciale</option>
+                                        <option value="liberal">Libérale</option>
+                                        <option value="artisanal">Artisanale</option>
+                                        <option value="agricultural">Agricole</option>
+                                    </select>
+                                </div>
+
+                                <!-- Versement libératoire -->
+                                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                    <label for="versement-liberatoire" class="text-base font-medium text-gray-900 dark:text-white">
+                                        Avez vous opté pour le versement libératoire ?
+                                    </label>
+                                    <select v-model="hasVersementLiberatoire" id="versement-liberatoire"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-32 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                        <option :value="false">Non</option>
+                                        <option :value="true">Oui</option>
+                                    </select>
+                                </div>
+
+                                <!-- Taux d'imposition -->
+                                <div v-if="!hasVersementLiberatoire" class="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+                                    <label for="tax-rate" class="text-base font-medium text-gray-900 dark:text-white">
+                                        Quel est votre taux d'imposition (en %) ?
+                                    </label>
+                                    <input v-model.number="customTaxRate" type="number" id="tax-rate" min="0" max="100"
+                                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-32 p-2.5 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                </div>
+                                
+                                <!-- Note sur le taux appliqué (visible uniquement si versement libératoire) -->
+                                <div v-if="hasVersementLiberatoire" class="text-sm text-gray-500 dark:text-gray-400 italic">
+                                    Taux appliqué automatiquement : {{ vlirTaxRate }}% selon votre activité
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Soit un total de</span>
+                                <div class="text-right">
+                                    <span class="text-xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(totalImposition) }} €</span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block">par an</span>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+
+                <section class="calcul-tjm h-full md:col-span-2">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6">
+                        <div class="mb-4 text-center">
+                            <p class="text-lg font-medium text-gray-900 dark:text-white">Si vous souhaitez réaliser un bénéfice de :</p>
+                            <div class="flex justify-center mt-2">
+                                <select v-model.number="profitMargin"
+                                    class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-24 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <option value="5">5%</option>
+                                    <option value="10">10%</option>
+                                    <option value="15">15%</option>
+                                    <option value="20">20%</option>
+                                    <option value="25">25%</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <p class="text-center mb-3 text-gray-900 dark:text-white">ainsi il faudrait fixer votre TJM à :</p>
+
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-indigo-900 text-white p-4 rounded-lg text-center">
+                                <span class="text-xl font-bold">{{ formatNumber(dailyRate) }} €</span>
+                                <span class="text-xs block">HT / jour</span>
+                            </div>
+                            <div class="bg-indigo-900 text-white p-4 rounded-lg text-center">
+                                <span class="text-xl font-bold">{{ formatNumber(annualRevenue) }} €</span>
+                                <span class="text-xs block">HT / an</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <h6 class="text-center font-medium text-gray-900 dark:text-white mb-2">Détail des jours facturés / Non facturés</h6>
+                            <p class="text-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                <span class="font-medium">{{ totalWorkingDays }}</span> jours ouvrés dans une année
+                            </p>
+
+                            <div class="space-y-3">
+                                <!-- Vacances -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <input v-model.number="nonBillableDays.holidays" type="number" min="0"
+                                        class="w-20 text-center px-2 py-1 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-gray-700 dark:text-gray-300">vacances et jours fériés</span>
+                                </div>
+
+                                <!-- Démarchage -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <input v-model.number="nonBillableDays.business" type="number" min="0"
+                                        class="w-20 text-center px-2 py-1 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-gray-700 dark:text-gray-300">démarchage commercial</span>
+                                </div>
+
+                                <!-- Compta -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <input v-model.number="nonBillableDays.admin" type="number" min="0"
+                                        class="w-20 text-center px-2 py-1 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-gray-700 dark:text-gray-300">compta & admin.</span>
+                                </div>
+
+                                <!-- Maladie -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <input v-model.number="nonBillableDays.sick" type="number" min="0"
+                                        class="w-20 text-center px-2 py-1 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-gray-700 dark:text-gray-300">maladie</span>
+                                </div>
+
+                                <!-- Chômage technique -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <input v-model.number="nonBillableDays.unemployment" type="number" min="0"
+                                        class="w-20 text-center px-2 py-1 border border-gray-300 rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                    <span class="text-gray-700 dark:text-gray-300">jours de chômage technique</span>
+                                </div>
+
+                                <!-- Total non facturés -->
+                                <div class="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 pb-2">
+                                    <span class="w-20 text-center font-bold text-red-600">{{ totalNonBillableDays }}</span>
+                                    <span class="text-gray-700 dark:text-gray-300 font-medium">Jours au total non-facturés</span>
+                                </div>
+
+                                <!-- Jours facturés -->
+                                <div class="flex items-center justify-between">
+                                    <span class="w-20 text-center font-bold text-green-600">{{ billableDays }}</span>
+                                    <span class="text-gray-700 dark:text-gray-300 font-medium">Jours facturés</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="estimation-finale h-full md:col-span-2">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Estimation de votre TJM :</p>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 text-center dark:bg-gray-700 dark:border-gray-600">
+                                    <span class="text-3xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(dailyRate) }} €</span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block">HT / jour</span>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Soit un CA annuel de :</p>
+                                <div class="bg-white border border-gray-200 rounded-lg p-4 text-center dark:bg-gray-700 dark:border-gray-600">
+                                    <span class="text-3xl font-bold text-indigo-800 dark:text-indigo-400">{{ formatNumber(annualRevenue) }} €</span>
+                                    <span class="text-xs text-gray-600 dark:text-gray-400 block">HT / an</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-center">
+                            <button @click="downloadSimulation" class="text-white bg-indigo-700 hover:bg-indigo-800 focus:ring-4 focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-800">
+                                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                                Télécharger la simulation
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </div>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script>
+        const app = Vue.createApp({
+            data() {
+                return {
+                    // Données initiales
+                    salaryTarget: 5000,
+                    expenses: {
+                        rent: 450,
+                        travel: 70,
+                        software: 90,
+                        accounting: 90,
+                        phone: 90,
+                        fuel: 90,
+                        maintenance: 90,
+                        supplies: 90,
+                        meals: 90,
+                        banking: 90,
+                        computer: 90,
+                        taxes: 90,
+                        other: 90,
+                    },
+                    socialChargesRate: 14, // Taux par défaut (en nombre)
+                    showAnnualSocialCharges: true, // Par défaut, afficher le montant annuel
+                    activityType: 'commercial',
+                    hasVersementLiberatoire: false,
+                    customTaxRate: 15,
+                    profitMargin: 5, // Marge bénéficiaire par défaut
+                    totalWorkingDays: 251, // Nombre de jours ouvrés dans l'année
+                    nonBillableDays: {
+                        holidays: 0, // Vacances et jours fériés
+                        business: 5, // Démarchage commercial
+                        admin: 20, // Compta & admin
+                        sick: 10, // Maladie
+                        unemployment: 40, // Chômage technique
+                    },
+                }
+            },
+            computed: {
+                // Calcul automatique du salaire annuel
+                annualSalary() {
+                    return this.salaryTarget * 12;
+                },
+                // Calcul du total mensuel des dépenses
+                totalMonthlyExpenses() {
+                    return Object.values(this.expenses).reduce((total, value) => {
+                        // Convertir en nombre et utiliser 0 si NaN
+                        const numValue = parseFloat(value) || 0;
+                        return total + numValue;
+                    }, 0);
+                },
+                // Calcul du total annuel des dépenses
+                totalAnnualExpenses() {
+                    return this.totalMonthlyExpenses * 12;
+                },
+                // Calcul du montant brut mensuel (avant charges sociales)
+                monthlyGrossSalary() {
+                    // Assurez-vous que le taux est correctement converti en nombre décimal
+                    const rate = parseFloat(this.socialChargesRate) / 100;
+                    // Calcul correct du salaire brut
+                    return this.salaryTarget / (1 - rate);
+                },
+                // Calcul des charges sociales mensuelles
+                monthlySocialCharges() {
+                    // Assurez-vous que le taux est correctement converti en nombre décimal
+                    const rate = parseFloat(this.socialChargesRate) / 100;
+                    // Calcul des charges sociales (différence entre brut et net)
+                    return this.monthlyGrossSalary - this.salaryTarget;
+                },
+                // Calcul des charges sociales annuelles
+                annualSocialCharges() {
+                    return this.monthlySocialCharges * 12;
+                },
+                // Calcul du revenu brut annuel
+                annualGrossSalary() {
+                    return this.monthlyGrossSalary * 12;
+                },
+                // Déterminer le taux VLIR selon l'activité
+                vlirTaxRate() {
+                    switch(this.activityType) {
+                        case 'commercial': return 1;
+                        case 'artisanal': return 1.7;
+                        case 'liberal': return 2.2;
+                        default: return 1.7; // Valeur par défaut
+                    }
+                },
+                // Déterminer le taux d'imposition à appliquer
+                effectiveTaxRate() {
+                    return this.hasVersementLiberatoire ? this.vlirTaxRate : this.customTaxRate;
+                },
+                // Calcul du montant total de l'imposition
+                totalImposition() {
+                    if (this.hasVersementLiberatoire) {
+                        // Si versement libératoire, on applique le taux sur le CA (revenu brut)
+                        return (this.annualGrossSalary * this.vlirTaxRate) / 100;
+                    } else {
+                        // Sinon, on applique le taux personnalisé sur le revenu brut
+                        return (this.annualGrossSalary * this.customTaxRate) / 100;
+                    }
+                },
+                // Calcul du total des jours non facturables
+                totalNonBillableDays() {
+                    return Object.values(this.nonBillableDays).reduce((total, days) => {
+                        // Convertir en nombre et utiliser 0 si NaN
+                        const numDays = parseInt(days) || 0;
+                        return total + numDays;
+                    }, 0);
+                },
+                // Calcul du nombre de jours facturables
+                billableDays() {
+                    const nonBillable = this.totalNonBillableDays;
+                    return Math.max(0, this.totalWorkingDays - nonBillable);
+                },
+                // Calcul du montant total annuel nécessaire (salaire + charges + impôts + frais)
+                totalAnnualNeeds() {
+                    // Salaire brut annuel
+                    const grossSalary = this.annualGrossSalary;
+                    
+                    // Impôts annuels
+                    const taxes = this.totalImposition;
+                    
+                    // Frais annuels
+                    const expenses = this.totalAnnualExpenses;
+                    
+                    // Total des besoins
+                    return grossSalary + taxes + expenses;
+                },
+                // Calcul du chiffre d'affaires annuel nécessaire (avec marge bénéficiaire)
+                annualRevenue() {
+                    // Appliquer la marge bénéficiaire
+                    const profitRate = 1 + (this.profitMargin / 100);
+                    return this.totalAnnualNeeds * profitRate;
+                },
+                // Calcul du TJM (Taux Journalier Moyen)
+                dailyRate() {
+                    // Si aucun jour facturable, éviter la division par zéro
+                    if (this.billableDays <= 0) return 0;
+                    
+                    // Diviser le CA annuel par le nombre de jours facturables
+                    return this.annualRevenue / this.billableDays;
+                }
+            },
+            methods: {
+                // Méthode pour formater les nombres avec 2 décimales maximum
+                formatNumber(num) {
+                    // Arrondir à 2 décimales et formater avec des espaces
+                    const rounded = Math.round(num * 100) / 100;
+                    return rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+                },
+                // Méthode pour s'assurer qu'une valeur est un nombre valide
+                ensureValidNumber(value) {
+                    const num = parseFloat(value);
+                    return isNaN(num) ? 0 : num;
+                },
+                // Méthode pour télécharger la simulation
+                downloadSimulation() {
+                    // Créer un objet contenant toutes les données de la simulation
+                    const simulationData = {
+                        salaryTarget: this.salaryTarget,
+                        annualSalary: this.annualSalary,
+                        expenses: this.expenses,
+                        totalMonthlyExpenses: this.totalMonthlyExpenses,
+                        totalAnnualExpenses: this.totalAnnualExpenses,
+                        socialChargesRate: this.socialChargesRate,
+                        monthlyGrossSalary: this.monthlyGrossSalary,
+                        monthlySocialCharges: this.monthlySocialCharges,
+                        annualSocialCharges: this.annualSocialCharges,
+                        activityType: this.activityType,
+                        hasVersementLiberatoire: this.hasVersementLiberatoire,
+                        customTaxRate: this.customTaxRate,
+                        effectiveTaxRate: this.effectiveTaxRate,
+                        totalImposition: this.totalImposition,
+                        profitMargin: this.profitMargin,
+                        totalWorkingDays: this.totalWorkingDays,
+                        nonBillableDays: this.nonBillableDays,
+                        totalNonBillableDays: this.totalNonBillableDays,
+                        billableDays: this.billableDays,
+                        totalAnnualNeeds: this.totalAnnualNeeds,
+                        annualRevenue: this.annualRevenue,
+                        dailyRate: this.dailyRate
+                    };
+                    
+                    // Convertir en JSON
+                    const jsonData = JSON.stringify(simulationData, null, 2);
+                    
+                    // Créer un blob et un lien de téléchargement
+                    const blob = new Blob([jsonData], { type: 'application/json' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    // Créer un élément a temporaire pour le téléchargement
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'simulation-tjm.json';
+                    document.body.appendChild(a);
+                    a.click();
+                    
+                    // Nettoyer
+                    setTimeout(() => {
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    }, 0);
+                }
+            },
+            // Ajoutez des watchers pour nettoyer les valeurs non numériques
+            watch: {
+                'expenses': {
+                    deep: true,
+                    handler(newExpenses) {
+                        // Parcourir toutes les propriétés de expenses
+                        for (const key in newExpenses) {
+                            if (newExpenses.hasOwnProperty(key)) {
+                                // Si la valeur n'est pas un nombre valide, la remplacer par 0
+                                if (isNaN(parseFloat(newExpenses[key]))) {
+                                    this.expenses[key] = 0;
+                                }
+                            }
+                        }
+                    }
+                },
+                'nonBillableDays': {
+                    deep: true,
+                    handler(newDays) {
+                        // Parcourir toutes les propriétés
+                        for (const key in newDays) {
+                            if (newDays.hasOwnProperty(key)) {
+                                // Si la valeur n'est pas un nombre valide, la remplacer par 0
+                                if (isNaN(parseInt(newDays[key]))) {
+                                    this.nonBillableDays[key] = 0;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+    <script>
+        const expensesList = document.getElementById('expenses-list');
+        const toggleBtn = document.getElementById('toggle-expenses');
+
+        toggleBtn.addEventListener('click', function () {
+            expensesList.classList.toggle('collapsed');
+            expensesList.classList.toggle('expanded');
+
+            const svg = this.querySelector('svg');
+            if (expensesList.classList.contains('collapsed')) {
+                svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>';
+            } else {
+                svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>';
+            }
+        });
+    </script>
+
+    <script>
+        var themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        var themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+
+        // Change the icons inside the button based on previous settings
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            themeToggleLightIcon.classList.remove('hidden');
+        } else {
+            themeToggleDarkIcon.classList.remove('hidden');
+        }
+
+        var themeToggleBtn = document.getElementById('theme-toggle');
+
+        themeToggleBtn.addEventListener('click', function () {
+
+            // toggle icons inside button
+            themeToggleDarkIcon.classList.toggle('hidden');
+            themeToggleLightIcon.classList.toggle('hidden');
+
+            // if set via local storage previously
+            if (localStorage.getItem('color-theme')) {
+                if (localStorage.getItem('color-theme') === 'light') {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                }
+
+                // if NOT set via local storage previously
+            } else {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('color-theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('color-theme', 'dark');
+                }
+            }
+
+        });
+    </script>
+</body>
+
+</html>
