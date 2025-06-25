@@ -94,7 +94,7 @@ function checkCode() {
 
       // Redirection avec un délai plus long pour garantir la synchronisation
       setTimeout(() => {
-        router.push('/calculateur-de-tjm');
+        router.push('/calculateur');
       }, 500);
     }, 1000);
   } else {
@@ -111,7 +111,7 @@ onMounted(() => {
   if (isBypassActive.value) {
     success.value = true;
     setTimeout(() => {
-      router.push('/calculateur-de-tjm');
+      router.push('/calculateur');
     }, 1000);
   }
 });

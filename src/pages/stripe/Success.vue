@@ -30,7 +30,7 @@ onMounted(async () => {
       sessionStorage.setItem('premiumToken', data.token)
       // Redirige vers le calculateur après 1s
       setTimeout(() => {
-        router.push('/calculateur-de-tjm')
+        router.push('/calculateur')
       }, 1000)
     } else {
       error.value = "Erreur lors de la génération du token. Contactez le support."

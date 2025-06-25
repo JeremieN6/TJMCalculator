@@ -68,7 +68,7 @@ const router = createRouter({
 
 if (import.meta.env.VITE_ENABLE_BYPASS === 'true') {
   router.addRoute({
-    path: '/calculateur-de-tjm/bypass-mode',
+    path: '/calculateur/bypass-mode',
     name: 'Bypass',
     component: BypassPage,
     meta: {

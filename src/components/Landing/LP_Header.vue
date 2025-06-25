@@ -38,7 +38,7 @@
                                 aria-current="page">Accueil</RouterLink>
                         </li>
                         <li>
-                            <RouterLink to="/calculateur-de-tjm"
+                            <RouterLink to="/calculateur"
                                 class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-primary-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700">
                                 Calculateur</RouterLink>
                         </li>
@@ -59,7 +59,7 @@
                         </li>
                         <!-- Lien de bypass visible seulement en mode développement -->
                         <li v-if="showBypassLink">
-                            <RouterLink to="/calculateur-de-tjm/bypass-mode"
+                            <RouterLink to="/calculateur/bypass-mode"
                                 class="block py-2 pr-4 pl-3 text-yellow-600 border-b border-gray-100 hover:bg-yellow-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-yellow-700 lg:p-0 dark:text-yellow-400 lg:dark:hover:text-yellow-300 dark:hover:bg-gray-700 dark:hover:text-yellow-300 lg:dark:hover:bg-transparent dark:border-gray-700 font-medium">
                                 🔐 Admin</RouterLink>
                         </li>

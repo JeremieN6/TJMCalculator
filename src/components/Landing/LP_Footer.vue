@@ -86,7 +86,7 @@
                 <RouterLink to="/" class="mr-4 hover:underline md:mr-6 ">Accueil</RouterLink>
             </li>
             <li>
-                <RouterLink to="/calculateur-de-tjm" class="mr-4 hover:underline md:mr-6">Calculateur</RouterLink>
+                <RouterLink to="/calculateur" class="mr-4 hover:underline md:mr-6">Calculateur</RouterLink>
             </li>
             <li>
                 <RouterLink to="/fonctionnalites" class="mr-4 hover:underline md:mr-6 ">Fonctionnalités</RouterLink>

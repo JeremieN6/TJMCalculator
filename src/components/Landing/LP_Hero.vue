@@ -20,7 +20,7 @@
                     Notre outil prend en compte ton salaire souhaité, tes charges, ton imposition, et tes jours non facturés pour t’aider à fixer un tarif juste, rentable et aligné avec tes objectifs.
                 </p>
             <div class="flex flex-col mb-8 lg:mb-16 space-y-4 sm:flex-row sm:justify-center sm:space-y-0 sm:space-x-4">
-                <RouterLink to="/calculateur-de-tjm"
+                <RouterLink to="/calculateur"
                     class="inline-flex justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-blue-700 hover:bg-blue-500 hover:text-white focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
                     Découvrir
                     <svg class="ml-2 -mr-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20"

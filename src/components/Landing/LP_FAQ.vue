@@ -42,7 +42,7 @@
                     </h3>
                     <p class="text-gray-500 dark:text-gray-400">
                         Oui, Tajimo est 100% compatible avec les micro-entrepreneurs. L’outil intègre les différents taux de cotisations selon votre type d’activité (vente, libérale, artisan, etc.) et prend en compte le versement libératoire de l’impôt si vous l’avez choisi.
-                        <RouterLink to="/calculateur-de-tjm" class="font-semibold text-primary-600 dark:text-primary-500 hover:underline"
+                        <RouterLink to="/calculateur" class="font-semibold text-primary-600 dark:text-primary-500 hover:underline"
                             target="_blank" rel="noreferrer">Cliquez ici</RouterLink>.</p>
                 </div>
                 <div class="mb-10">
