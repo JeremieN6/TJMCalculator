@@ -9,14 +9,13 @@ import posts from './src/assets/data/articles.json' assert { type: 'json' };
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const BASE_URL = 'https://temps-cuisson-air-fryer.netlify.app'
+const BASE_URL = 'https://sassify.fr/calculateur-de-tjm'
 
 // 📅 Date du jour au format YYYY-MM-DD
 const today = new Date().toISOString().split('T')[0]
 
 const routes = [
   '/',
-  '/calculateur-de-tjm',
   '/fonctionnalites',
   '/blog',
   '/politique-de-confidentialite'
