@@ -17,7 +17,7 @@ const routes = [
       description: 'Obtenez instantanément le temps et la température de cuisson de vos aliments au air fryer grâce à notre IA.'
     }
    },
-  { path: '/calculateur-de-tjm', component: CalculateurPage,
+  { path: '/calculateur', component: CalculateurPage,
     meta: {
       title: 'Calcul ton TJM avec Tajimo | Calculateur',
       description: 'Obtenez instantanément le temps et la température de cuisson de vos aliments au air fryer grâce à notre IA.'

@@ -16,6 +16,7 @@ const today = new Date().toISOString().split('T')[0]
 
 const routes = [
   '/',
+  '/calculateur',
   '/fonctionnalites',
   '/blog',
   '/politique-de-confidentialite'
