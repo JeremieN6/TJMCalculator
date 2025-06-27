@@ -16,8 +16,8 @@ export async function handler(event) {
           quantity: 1
         }
       ],
-      success_url: 'https://temps-cuisson-air-fryer.netlify.app/success',
-      cancel_url: 'https://temps-cuisson-air-fryer.netlify.app/cancel'
+      success_url: 'https://calculateur-de-tjm.netlify.app/success',
+      cancel_url: 'https://calculateur-de-tjm.netlify.app/cancel'
       // success_url: 'http://localhost:8888/success',
       // cancel_url: 'http://localhost:8888/cancel'
     })
